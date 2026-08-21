@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Inventory System{% endblock %}
+
+{% block body_content %}
+<div class="container-fluid p-0" style="height: 100vh; overflow: hidden;">
+    <div class="row g-0 h-100">
+        <div class="col-md-5 d-none d-md-block h-100" style="background-image: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center;">
+        </div>
+        <div class="col-md-7 d-flex align-items-center justify-content-center bg-light h-100" style="overflow-y: auto;">
+        <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px;">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i>
+                    <h3 class="card-title mt-2">Welcome Back</h3>
+                    <p class="text-muted">Login to manage your inventory</p>
+                </div>
+                {% if session_expired %}
+                <div class="alert alert-warning" role="alert">
+                    Your session has expired. Please login again.
+                </div>
+                {% endif %}
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+                {% if success %}
+                <div class="alert alert-success" role="alert">
+                    {{ success }}
+                </div>
+                {% endif %}
+                <form method="POST" action="/login">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                    </div>
+                    <div class="text-center mt-4">
+                        {% if can_register %}
+                        <p class="mb-0">Don't have an account? <a href="/register" class="text-decoration-none fw-bold">Sign up</a></p>
+                        {% endif %}
+                        <a href="/reset-password" class="text-decoration-none small text-muted">Forgot Password?</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

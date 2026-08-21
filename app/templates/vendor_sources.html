@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Sources - Inventory System{% endblock %}
+
+{% block content %}
+<div id="vendorPage" data-part-id="{{ part.id }}" data-default-query="{{ query|e }}"></div>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <div>
+        <h2 class="h3 mb-1">Vendor Sources</h2>
+        <div class="text-muted small">Part No: {{ part.sku }} | {{ part.name }}</div>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0 gap-2">
+        <a href="/" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-lg-6">
+                <div class="small text-muted">Search query</div>
+                <div class="fw-semibold" id="vendorQueryText">{{ query }}</div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="d-flex gap-2 flex-wrap justify-content-lg-end">
+                    <select class="form-select form-select-sm" id="vendorSortSelect" style="max-width: 260px;">
+                        <option value="relevance">Sort: Relevance</option>
+                        <option value="usd_asc" selected>Sort: USD low → high</option>
+                        <option value="usd_desc">Sort: USD high → low</option>
+                        <option value="myr_asc">Sort: MYR low → high</option>
+                        <option value="myr_desc">Sort: MYR high → low</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="fetchMoreVendorsBtn">
+                        <i class="bi bi-plus-circle"></i> Fetch More Vendor
+                    </button>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="manualVendorToggle">
+                        <label class="form-check-label" for="manualVendorToggle">Manual search</label>
+                    </div>
+                    <input type="text" class="form-control form-control-sm" style="max-width: 520px;" id="manualVendorQuery" placeholder="Type keyword, e.g. ABC123 price Malaysia" disabled>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="manualVendorBtn" disabled>
+                        <i class="bi bi-search"></i> Get Vendor (Manual)
+                    </button>
+                    <div class="small text-muted" id="vendorFetchStatus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if ai_summary %}
+<div class="card mb-3">
+    <div class="card-header">AI Summary</div>
+    <div class="card-body">
+        {% if ai_summary.product_overview %}
+            <div class="mb-2">{{ ai_summary.product_overview }}</div>
+        {% endif %}
+        {% if ai_summary.best_value_ranges %}
+            <div class="small text-muted mb-1">Best value ranges (from current listings)</div>
+            <div class="row g-2 mb-2">
+                <div class="col-12 col-lg-6">
+                    <div class="small">
+                        <div>Cheapest: {{ ai_summary.best_value_ranges.cheapest_usd }}{% if ai_summary.best_value_ranges.cheapest_myr %} ({{ ai_summary.best_value_ranges.cheapest_myr }}){% endif %}</div>
+                        <div>Typical: {{ ai_summary.best_value_ranges.typical_usd }}{% if ai_summary.best_value_ranges.typical_myr %} ({{ ai_summary.best_value_ranges.typical_myr }}){% endif %}</div>
+                        <div>High end: {{ ai_summary.best_value_ranges.high_end_usd }}{% if ai_summary.best_value_ranges.high_end_myr %} ({{ ai_summary.best_value_ranges.high_end_myr }}){% endif %}</div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if ai_summary.key_specs %}
+            <div class="small text-muted mb-1">Key specs</div>
+            <ul class="mb-2">
+                {% for s in ai_summary.key_specs %}
+                    <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if ai_summary.buying_advice %}
+            <div class="small text-muted mb-1">Buying advice</div>
+            <ul class="mb-0">
+                {% for s in ai_summary.buying_advice %}
+                    <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="alert alert-info" role="alert">
+    Showing dynamic vendor offers (best-effort). Use the sort dropdown to change ordering.
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Vendor Page</th>
+                <th scope="col">Lowest Price (USD)</th>
+                <th scope="col">Price (MYR)</th>
+                <th scope="col">Link</th>
+            </tr>
+        </thead>
+        <tbody id="vendorResultsBody">
+            {% for r in results %}
+            <tr
+                data-url="{{ r.url }}"
+                data-price-usd="{% if r.price_usd is defined and r.price_usd is not none %}{{ r.price_usd }}{% endif %}"
+                data-price-myr="{% if r.price_myr is defined and r.price_myr is not none %}{{ r.price_myr }}{% endif %}"
+                data-match-score="{% if r.match_score is defined and r.match_score is not none %}{{ r.match_score }}{% endif %}"
+            >
+                <td>{{ loop.index }}</td>
+                <td>
+                    {% if r.url %}
+                        <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer">
+                            {{ r.title }}
+                        </a>
+                    {% else %}
+                        {{ r.title }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.price_usd is defined and r.price_usd is not none %}
+                        {{ "%.2f"|format(r.price_usd) }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.price_myr is defined and r.price_myr is not none %}
+                        {{ "%.2f"|format(r.price_myr) }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.url %}
+                        <a class="btn btn-sm btn-outline-primary" href="{{ r.url }}" target="_blank" rel="noopener noreferrer">
+                            Open
+                        </a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center py-4 text-muted">
+                    No vendor results found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="small text-muted mt-2">
+    Prices are best-effort extracted from page content and may be inaccurate. Preferred vendor sites can be prioritized later.
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var pageEl = document.getElementById('vendorPage');
+    var partId = pageEl ? pageEl.getAttribute('data-part-id') : null;
+    var defaultQuery = pageEl ? pageEl.getAttribute('data-default-query') : '';
+
+    var queryTextEl = document.getElementById('vendorQueryText');
+    var statusEl = document.getElementById('vendorFetchStatus');
+    var tbody = document.getElementById('vendorResultsBody');
+    var fetchMoreBtn = document.getElementById('fetchMoreVendorsBtn');
+    var sortSelect = document.getElementById('vendorSortSelect');
+    var manualToggle = document.getElementById('manualVendorToggle');
+    var manualInput = document.getElementById('manualVendorQuery');
+    var manualBtn = document.getElementById('manualVendorBtn');
+    var offersState = null;
+    var sortMode = (sortSelect && sortSelect.value) ? sortSelect.value : 'usd_asc';
+
+    function setStatus(msg) {
+        if (!statusEl) return;
+        statusEl.textContent = msg || '';
+    }
+
+    function safeHttpUrl(u) {
+        try {
+            var parsed = new URL(u);
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return u;
+        } catch (e) {}
+        return '';
+    }
+
+    function currentQuery() {
+        if (manualToggle && manualToggle.checked) {
+            var q = (manualInput && manualInput.value ? manualInput.value : '').trim();
+            if (q) return q;
+        }
+        return (defaultQuery || '').trim();
+    }
+
+    function getExistingUrls() {
+        var urls = [];
+        if (offersState && offersState.length) {
+            for (var i = 0; i < offersState.length; i++) {
+                var u = (offersState[i] && offersState[i].url ? String(offersState[i].url).trim() : '');
+                if (u) urls.push(u);
+            }
+        }
+        return urls.length > 40 ? urls.slice(urls.length - 40) : urls;
+    }
+
+    function appendOfferRow(rank, offer) {
+        if (!tbody) return;
+        var tr = document.createElement('tr');
+        tr.setAttribute('data-url', offer.url || '');
+        tr.setAttribute('data-price-usd', offer.price_usd !== null && offer.price_usd !== undefined ? String(offer.price_usd) : '');
+        tr.setAttribute('data-price-myr', offer.price_myr !== null && offer.price_myr !== undefined ? String(offer.price_myr) : '');
+        tr.setAttribute('data-match-score', offer.match_score !== null && offer.match_score !== undefined ? String(offer.match_score) : '');
+
+        var tdRank = document.createElement('td');
+        tdRank.textContent = String(rank);
+        tr.appendChild(tdRank);
+
+        var tdVendor = document.createElement('td');
+        var aVendor = document.createElement('a');
+        var href = safeHttpUrl(offer.url || '');
+        aVendor.setAttribute('href', href || '#');
+        aVendor.setAttribute('target', '_blank');
+        aVendor.setAttribute('rel', 'noopener noreferrer');
+        aVendor.textContent = offer.title || offer.url || 'Vendor';
+        tdVendor.appendChild(aVendor);
+        tr.appendChild(tdVendor);
+
+        var tdUsd = document.createElement('td');
+        if (offer.price_usd !== null && offer.price_usd !== undefined) {
+            tdUsd.textContent = Number(offer.price_usd).toFixed(2);
+        } else {
+            tdUsd.textContent = '-';
+        }
+        tr.appendChild(tdUsd);
+
+        var tdMyr = document.createElement('td');
+        if (offer.price_myr !== null && offer.price_myr !== undefined) {
+            tdMyr.textContent = Number(offer.price_myr).toFixed(2);
+        } else {
+            tdMyr.textContent = '-';
+        }
+        tr.appendChild(tdMyr);
+
+        var tdLink = document.createElement('td');
+        if (href) {
+            var aOpen = document.createElement('a');
+            aOpen.className = 'btn btn-sm btn-outline-primary';
+            aOpen.setAttribute('href', href);
+            aOpen.setAttribute('target', '_blank');
+            aOpen.setAttribute('rel', 'noopener noreferrer');
+            aOpen.textContent = 'Open';
+            tdLink.appendChild(aOpen);
+        } else {
+            tdLink.textContent = '-';
+        }
+        tr.appendChild(tdLink);
+
+        tbody.appendChild(tr);
+    }
+
+    function bootstrapOffersState() {
+        offersState = [];
+        if (!tbody) return;
+        var rows = tbody.querySelectorAll('tr[data-url]');
+        rows.forEach(function(tr) {
+            var url = (tr.getAttribute('data-url') || '').trim();
+            var vendorTd = tr.querySelector('td:nth-child(2)');
+            var a = vendorTd ? vendorTd.querySelector('a') : null;
+            var title = a ? (a.textContent || '').trim() : ((vendorTd && vendorTd.textContent) ? vendorTd.textContent.trim() : '');
+
+            var usdRaw = (tr.getAttribute('data-price-usd') || '').trim();
+            var myrRaw = (tr.getAttribute('data-price-myr') || '').trim();
+            var usd = usdRaw ? parseFloat(usdRaw) : NaN;
+            var myr = myrRaw ? parseFloat(myrRaw) : NaN;
+            var matchRaw = (tr.getAttribute('data-match-score') || '').trim();
+            var matchScore = matchRaw ? parseInt(matchRaw, 10) : NaN;
+
+            offersState.push({
+                url: url,
+                title: title,
+                price_usd: isFinite(usd) ? usd : null,
+                price_myr: isFinite(myr) ? myr : null,
+                match_score: isFinite(matchScore) ? matchScore : null
+            });
+        });
+    }
+
+    function compareMaybeNumber(aVal, bVal, asc) {
+        var aMissing = aVal === null || aVal === undefined || !isFinite(aVal);
+        var bMissing = bVal === null || bVal === undefined || !isFinite(bVal);
+        if (aMissing && bMissing) return 0;
+        if (aMissing) return 1;
+        if (bMissing) return -1;
+        return asc ? (aVal - bVal) : (bVal - aVal);
+    }
+
+    function compareOffers(a, b) {
+        var aUsd = a && a.price_usd !== null && a.price_usd !== undefined ? parseFloat(a.price_usd) : NaN;
+        var bUsd = b && b.price_usd !== null && b.price_usd !== undefined ? parseFloat(b.price_usd) : NaN;
+        var aMyr = a && a.price_myr !== null && a.price_myr !== undefined ? parseFloat(a.price_myr) : NaN;
+        var bMyr = b && b.price_myr !== null && b.price_myr !== undefined ? parseFloat(b.price_myr) : NaN;
+        var aMatch = a && a.match_score !== null && a.match_score !== undefined ? parseInt(a.match_score, 10) : NaN;
+        var bMatch = b && b.match_score !== null && b.match_score !== undefined ? parseInt(b.match_score, 10) : NaN;
+
+        var cmp = 0;
+        if (sortMode === 'relevance') cmp = compareMaybeNumber(aMatch, bMatch, false);
+        else if (sortMode === 'usd_desc') cmp = compareMaybeNumber(aUsd, bUsd, false);
+        else if (sortMode === 'myr_asc') cmp = compareMaybeNumber(aMyr, bMyr, true);
+        else if (sortMode === 'myr_desc') cmp = compareMaybeNumber(aMyr, bMyr, false);
+        else cmp = compareMaybeNumber(aUsd, bUsd, true);
+        if (cmp !== 0) return cmp;
+
+        cmp = compareMaybeNumber(aMatch, bMatch, false);
+        if (cmp !== 0) return cmp;
+        cmp = compareMaybeNumber(aUsd, bUsd, true);
+        if (cmp !== 0) return cmp;
+        cmp = compareMaybeNumber(aMyr, bMyr, true);
+        if (cmp !== 0) return cmp;
+
+        var aTitle = ((a && a.title) ? String(a.title) : '').toLowerCase();
+        var bTitle = ((b && b.title) ? String(b.title) : '').toLowerCase();
+        if (aTitle < bTitle) return -1;
+        if (aTitle > bTitle) return 1;
+
+        var aUrl = ((a && a.url) ? String(a.url) : '').toLowerCase();
+        var bUrl = ((b && b.url) ? String(b.url) : '').toLowerCase();
+        if (aUrl < bUrl) return -1;
+        if (aUrl > bUrl) return 1;
+        return 0;
+    }
+
+    function renderOffers() {
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!offersState || !offersState.length) {
+            var tr = document.createElement('tr');
+            var td = document.createElement('td');
+            td.colSpan = 5;
+            td.className = 'text-center py-4 text-muted';
+            td.textContent = 'No vendor results found.';
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            return;
+        }
+        offersState.sort(compareOffers);
+        for (var i = 0; i < offersState.length; i++) {
+            appendOfferRow(i + 1, offersState[i]);
+        }
+    }
+
+    async function fetchMore(reset) {
+        if (!partId) return;
+        var q = currentQuery();
+        if (!q) return;
+
+        if (!offersState) {
+            bootstrapOffersState();
+        }
+        var urls = reset ? [] : getExistingUrls();
+        var endpoint = '/parts/' + encodeURIComponent(partId) + '/vendor-sources/offers';
+        var params = new URLSearchParams();
+        params.set('batch', '10');
+        params.set('q', q);
+        if (urls.length) params.set('exclude_urls', urls.join(','));
+
+        setStatus('Fetching...');
+        if (fetchMoreBtn) fetchMoreBtn.disabled = true;
+        if (manualBtn) manualBtn.disabled = true;
+
+        try {
+            var resp = await fetch(endpoint + '?' + params.toString(), { credentials: 'same-origin' });
+            if (!resp.ok) {
+                setStatus('Fetch failed (' + resp.status + ').');
+                return;
+            }
+            var payload = await resp.json();
+            var offers = (payload && payload.offers) ? payload.offers : [];
+            if (payload && payload.query && queryTextEl) queryTextEl.textContent = payload.query;
+
+            if (reset) {
+                offersState = [];
+            }
+
+            if (!offers.length) {
+                setStatus('No more vendors found.');
+                return;
+            }
+
+            var existing = new Set();
+            for (var j = 0; j < offersState.length; j++) {
+                var k = offersState[j] && offersState[j].url ? String(offersState[j].url).trim() : '';
+                if (k) existing.add(k);
+            }
+            for (var i = 0; i < offers.length; i++) {
+                var offer = offers[i] || {};
+                var u = offer.url ? String(offer.url).trim() : '';
+                if (u && existing.has(u)) continue;
+                if (u) existing.add(u);
+                offersState.push({
+                    url: u,
+                    title: offer.title || offer.url || 'Vendor',
+                    price_usd: offer.price_usd !== null && offer.price_usd !== undefined ? Number(offer.price_usd) : null,
+                    price_myr: offer.price_myr !== null && offer.price_myr !== undefined ? Number(offer.price_myr) : null,
+                    match_score: offer.match_score !== null && offer.match_score !== undefined ? parseInt(offer.match_score, 10) : null
+                });
+            }
+            renderOffers();
+            setStatus('Added ' + offers.length + ' vendor(s).');
+        } catch (e) {
+            setStatus('Fetch error.');
+        } finally {
+            if (fetchMoreBtn) fetchMoreBtn.disabled = false;
+            if (manualToggle && manualToggle.checked) {
+                if (manualBtn) manualBtn.disabled = false;
+            }
+        }
+    }
+
+    function syncManualControls() {
+        var enabled = manualToggle && manualToggle.checked;
+        if (manualInput) manualInput.disabled = !enabled;
+        if (manualBtn) manualBtn.disabled = !enabled;
+    }
+
+    if (manualToggle) {
+        manualToggle.addEventListener('change', function() {
+            syncManualControls();
+        });
+        syncManualControls();
+    }
+
+    if (fetchMoreBtn) {
+        fetchMoreBtn.addEventListener('click', function() {
+            fetchMore(false);
+        });
+    }
+
+    if (manualBtn) {
+        manualBtn.addEventListener('click', function() {
+            fetchMore(true);
+        });
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            sortMode = this.value || 'relevance';
+            if (!offersState) bootstrapOffersState();
+            renderOffers();
+        });
+    }
+
+    if (!offersState) bootstrapOffersState();
+    renderOffers();
+});
+</script>
+{% endblock %}

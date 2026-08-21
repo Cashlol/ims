@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+sqlalchemy
+jinja2
+python-multipart
+pandas
+numpy
+openpyxl
+pytest
+httpx
+bcrypt
+python-jose
+pydantic[email]
+email-validator

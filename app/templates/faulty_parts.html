@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Faulty Parts - Inventory System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h2 class="h3">Internal Returning</span></h2>
+    <div class="btn-toolbar mb-2 mb-md-0 gap-2">
+        <a href="/export/reports/faulty-parts.xlsx" class="btn btn-success btn-sm">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </a>
+        <a href="/" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">S. No</th>
+                <th scope="col">Part No</th>
+                <th scope="col">Part Description</th>
+                <th scope="col">Serial No</th>
+                <th scope="col">Vendor</th>
+                <th scope="col">Date Out</th>
+                <th scope="col">Remark</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ (page - 1) * limit + loop.index }}</td>
+                <td>{{ item.sku_part.sku if item.sku_part else '' }}</td>
+                <td>{{ item.sku_part.name if item.sku_part else '' }}</td>
+                <td>{{ item.serial_no or ('Item #' ~ item.id) }}</td>
+                <td>{{ item.vendor or '' }}</td>
+                <td>
+                    {% if item.date_out %}
+                        {{ item.date_out.strftime("%Y-%m-%d %H:%M:%S") }}
+                    {% endif %}
+                </td>
+                <td>{{ item.remarks or '' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No faulty items found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<nav aria-label="Faulty parts pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if page == 1 %}disabled{% endif %}">
+            <a class="page-link" href="/reports/faulty-parts?page={{ page - 1 }}&limit={{ limit }}">Previous</a>
+        </li>
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link" href="/reports/faulty-parts?page={{ p }}&limit={{ limit }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+            <a class="page-link" href="/reports/faulty-parts?page={{ page + 1 }}&limit={{ limit }}">Next</a>
+        </li>
+    </ul>
+</nav>
+{% endblock %}

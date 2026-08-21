@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inventory System{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bb-navy: #2f74a7;
+            --bb-navy-hover: #275f88;
+            --bb-teal: #2aa84a;
+            --bb-teal-hover: #228a3d;
+            --bb-bg: #f6f8fb;
+            --bb-surface: #ffffff;
+            --bb-border: #e6edf5;
+            --bb-text: #102a43;
+            --bb-muted: #6b7a90;
+            --bs-primary: var(--bb-navy);
+            --bs-link-color: var(--bb-teal);
+            --bs-link-hover-color: var(--bb-teal-hover);
+            --bs-body-font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        }
+
+        body {
+            background: radial-gradient(900px 300px at 20% 0%, rgba(42, 168, 74, 0.10), rgba(42, 168, 74, 0.0) 65%),
+                        radial-gradient(900px 300px at 80% 0%, rgba(47, 116, 167, 0.12), rgba(47, 116, 167, 0.0) 65%),
+                        var(--bb-bg);
+            color: var(--bb-text);
+        }
+
+        .navbar.bg-primary {
+            background-color: var(--bb-navy) !important;
+            box-shadow: 0 10px 30px rgba(16, 42, 67, 0.18);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-link {
+            font-weight: 500;
+        }
+
+        .navbar .nav-link {
+            color: rgba(255, 255, 255, 0.88) !important;
+        }
+
+        .navbar .nav-link:hover,
+        .navbar .nav-link:focus {
+            color: #ffffff !important;
+        }
+
+        .navbar .dropdown-toggle::after {
+            opacity: 0.9;
+        }
+
+        .navbar .dropdown-menu {
+            border-radius: 14px;
+            border: 1px solid var(--bb-border);
+            box-shadow: 0 18px 40px rgba(16, 42, 67, 0.18);
+            padding: 0.4rem;
+        }
+
+        .navbar .dropdown-item {
+            border-radius: 10px;
+            padding: 0.55rem 0.75rem;
+            font-weight: 600;
+            color: var(--bb-text);
+        }
+
+        .navbar .dropdown-item:hover,
+        .navbar .dropdown-item:focus {
+            background: rgba(42, 168, 74, 0.12);
+            color: var(--bb-text);
+        }
+
+        .navbar .dropdown-item:active {
+            background: rgba(42, 168, 74, 0.18);
+            color: var(--bb-text);
+        }
+
+        .navbar .dropdown-divider {
+            border-top-color: var(--bb-border);
+        }
+
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.25rem rgba(42, 168, 74, 0.22);
+        }
+
+        .card {
+            background: var(--bb-surface);
+            border: 1px solid var(--bb-border);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(16, 42, 67, 0.08);
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--bb-navy);
+            border-color: var(--bb-navy);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: var(--bb-navy-hover);
+            border-color: var(--bb-navy-hover);
+        }
+
+        .btn-outline-primary {
+            color: var(--bb-teal);
+            border-color: rgba(42, 168, 74, 0.55);
+        }
+
+        .btn-outline-primary:hover,
+        .btn-outline-primary:focus {
+            background-color: rgba(42, 168, 74, 0.10);
+            border-color: rgba(42, 168, 74, 0.70);
+            color: var(--bb-teal);
+        }
+
+        .form-control,
+        .form-select,
+        .input-group-text {
+            border-radius: 12px;
+            border-color: var(--bb-border);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgba(42, 168, 74, 0.55);
+            box-shadow: 0 0 0 0.25rem rgba(42, 168, 74, 0.15);
+        }
+
+        .table-dark {
+            --bs-table-bg: var(--bb-navy);
+            --bs-table-striped-bg: rgba(255, 255, 255, 0.04);
+            --bs-table-striped-color: #ffffff;
+            --bs-table-color: #ffffff;
+        }
+
+        .text-muted {
+            color: var(--bb-muted) !important;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% block body_content %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">Inventory Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user %}
+                    <li class="nav-item">
+                        <span class="nav-link text-white">Welcome, {{ user.full_name or user.email }}</span>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Settings
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+                            <li><a class="dropdown-item" href="/settings/email">Email Setting</a></li>
+                            {% if user.is_admin %}
+                            <li><a class="dropdown-item" href="/settings/users">User Management</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="logDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Log
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="logDropdown">
+                            <li><a class="dropdown-item" href="/activity-log">Activity Log</a></li>
+                            <li><a class="dropdown-item" href="/movements?type=returning">Returning Log</a></li>
+                            <li><a class="dropdown-item" href="/movements?type=outgoing">Outgoing Log</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="reportDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Report
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reportDropdown">
+                            <li><a class="dropdown-item" href="/reports/rack-inventory">Inventory Report</a></li>
+                            <li><a class="dropdown-item" href="/reports/faulty-parts">Internal Returning</a></li>
+                            <li><a class="dropdown-item" href="/reports/client-faulty-log">Client Returning Log</a></li>
+                            <li><a class="dropdown-item" href="/reports/disposal-report">Disposal Report</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    {% endblock %}
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(el) {
+                setTimeout(function() {
+                    if (!el) return;
+                    if (window.bootstrap && bootstrap.Alert) {
+                        var instance = bootstrap.Alert.getOrCreateInstance(el);
+                        instance.close();
+                    } else {
+                        el.classList.add('fade');
+                        el.classList.remove('show');
+                        setTimeout(function() {
+                            if (el && el.parentNode) {
+                                el.parentNode.removeChild(el);
+                            }
+                        }, 150);
+                    }
+                }, 7000);
+            });
+
+            if (window.bootstrap && bootstrap.Tooltip) {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function(el) {
+                    bootstrap.Tooltip.getOrCreateInstance(el);
+                });
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
