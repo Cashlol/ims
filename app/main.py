@@ -1474,28 +1474,6 @@ EXPORT_COLUMN_DEFS = {
 }
 
 
-def _build_export_rows(parts: list[models.SkuPart], selected_keys: list[str]):
-    keys = selected_keys or list(EXPORT_COLUMN_DEFS.keys())
-    keys = [k for k in keys if k in EXPORT_COLUMN_DEFS]
-
-    if not keys:
-        keys = list(EXPORT_COLUMN_DEFS.keys())
-
-    rows = []
-    headers = [EXPORT_COLUMN_DEFS[k][0] for k in keys]
-
-    for part in parts:
-        items = part.items or [None]
-        for item in items:
-            row = []
-            for key in keys:
-                _, fn = EXPORT_COLUMN_DEFS[key]
-                row.append(fn(part, item))
-            rows.append(row)
-
-    return headers, rows
-
-
 @app.get("/export/parts.csv")
 async def export_parts_csv(
     search: Optional[str] = None,
@@ -1505,6 +1483,8 @@ async def export_parts_csv(
     parts, total_count = crud.get_parts(db, skip=0, limit=1_000_000, search_query=search)
 
     selected_keys = [c.strip() for c in columns.split(",")] if columns else []
+
+    # This line is the problematic one
     headers, rows = _build_export_rows(parts, selected_keys)
 
     output = io.StringIO()
@@ -1515,6 +1495,7 @@ async def export_parts_csv(
         writer.writerow(row)
 
     content = output.getvalue()
+
     output.close()
 
     headers_resp = {
@@ -1552,6 +1533,29 @@ async def export_parts_excel(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers=headers_resp,
     )
+
+def _build_export_rows(parts: list[models.SkuPart], selected_keys: list[str]):
+    keys = selected_keys or list(EXPORT_COLUMN_DEFS.keys())
+    keys = [k for k in keys if k in EXPORT_COLUMN_DEFS]
+
+    if not keys:
+        keys = list(EXPORT_COLUMN_DEFS.keys())
+
+    rows = []
+    headers = [EXPORT_COLUMN_DEFS[k][0] for k in keys]
+
+    for part in parts:
+        part_excel_item = part.items or [None]
+        part_test = part.name
+                
+        for item in part_excel_item:
+            row = []
+            for key in keys:
+                _, fn = EXPORT_COLUMN_DEFS[key]
+                row.append(fn(part, item))
+            rows.append(row)
+    
+    return headers, rows
 
 
 @app.get("/export/machine-registry.csv")

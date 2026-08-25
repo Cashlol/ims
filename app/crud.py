@@ -86,17 +86,21 @@ def get_parts(db: Session, skip: int = 0, limit: int = 100, search_query: str | 
                     models.SkuPart.name.ilike(search),
                     models.PartItem.vendor.ilike(search),
                     models.PartItem.serial_no.ilike(search),
+                    models.SkuPart.part_category.ilike(search),
                 )
             )
         )
 
     total = query.distinct(models.SkuPart.id).count()
+
     parts = (
         query.distinct(models.SkuPart.id)
         .offset(skip)
         .limit(limit)
         .all()
     )
+
+    print
     return parts, total
 
 
@@ -123,6 +127,7 @@ def get_parts_by_platform(
                     models.SkuPart.name.ilike(search),
                     models.PartItem.vendor.ilike(search),
                     models.PartItem.serial_no.ilike(search),
+                    models.SkuPart.part_category.ilike(search),
                 )
             )
         )
@@ -134,6 +139,7 @@ def get_parts_by_platform(
         .limit(limit)
         .all()
     )
+
     return parts, total
 
 

@@ -169,6 +169,7 @@
                 <th scope="col" data-bs-toggle="tooltip" title="Stock keeping unit / Part number">Part No</th>
                 <th scope="col" data-bs-toggle="tooltip" title="Part name and remarks/specs">Part Description</th>
                 <th scope="col" data-bs-toggle="tooltip" title="Storage location: Rack, Tray, Platform">Location</th>
+                <th scope="col" data-bs-toggle="tooltip" title="">Entity</th>
                 <th scope="col" data-bs-toggle="tooltip" title="Available stock count; click to open part stock detail">Stock/Serial No</th>
                 <th scope="col" class="text-center" data-bs-toggle="tooltip" title="Business impact if stock-out occurs">Criticality</th>
                 <th scope="col" data-bs-toggle="tooltip" title="Forecast demand per year used for EOQ calculation">Annual Demand</th>
@@ -226,9 +227,10 @@
                         Rack Type: {{ part.rack_type or '-' }},
                         Tray Type: {{ part.tray_type or '-' }},
                         Platform: {{ part.platform or '-' }}<br>
-                        Category: {{ part.part_category or '-' }}
+                        <!-- Category: {{ part.part_category or '-' }} -->
                     </small>
                 </td>
+                <td>{{ part.part_category or '-'}}</td>
                 <td>
                     <button type="button"
                             class="btn btn-link p-0 stock-detail-btn"
