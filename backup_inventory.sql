@@ -20,7 +20,8 @@ CREATE TABLE sku_parts (
 	tray_type VARCHAR, 
 	platform VARCHAR, 
 	criticality VARCHAR, 
-	annual_demand INTEGER, part_category VARCHAR, 
+	annual_demand INTEGER, 
+	part_category VARCHAR, 
 	PRIMARY KEY (id)
 );
 INSERT INTO sku_parts VALUES(1,'2026-05-06 03:48:28','ST973402SSUN72G / 540-6611','SUN 73GB 10K SAS HDD ( 390-0323)','SUN 73GB 10K SAS HDD ( 390-0323)','Rack-8','Tray-1',NULL,'Critical',197,NULL);

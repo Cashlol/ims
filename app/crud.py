@@ -100,7 +100,6 @@ def get_parts(db: Session, skip: int = 0, limit: int = 100, search_query: str | 
         .all()
     )
 
-    print
     return parts, total
 
 

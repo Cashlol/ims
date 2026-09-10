@@ -309,7 +309,13 @@
         <li class="page-item {% if (parts_page or 1) == 1 %}disabled{% endif %}">
             <a class="page-link" href="/?stock_tab=parts&parts_page={{ (parts_page or 1) - 1 }}&machine_page={{ machine_page or 1 }}&limit={{ limit }}{% if search %}&search={{ search }}{% endif %}">Previous</a>
         </li>
-        {% for p in range(1, total_pages + 1) %}
+        {%  set current = parts_page or 1%}
+        {% set window = 10 %}
+        {% set start = [current - (window//2), 1] | max %}
+        {% set end = [start + window - 1, total_pages] | min %}
+        {% set start = [end - window + 1, 1] | max %}
+
+        {% for p in range(start, end + 1) %}
         <li class="page-item {% if p == (parts_page or 1) %}active{% endif %}">
             <a class="page-link" href="/?stock_tab=parts&parts_page={{ p }}&machine_page={{ machine_page or 1 }}&limit={{ limit }}{% if search %}&search={{ search }}{% endif %}">{{ p }}</a>
         </li>
@@ -485,7 +491,12 @@
         <li class="page-item {% if (machine_page or 1) == 1 %}disabled{% endif %}">
             <a class="page-link" href="/?stock_tab=machine&parts_page={{ parts_page or 1 }}&machine_page={{ (machine_page or 1) - 1 }}&limit={{ limit }}{% if search %}&search={{ search }}{% endif %}">Previous</a>
         </li>
-        {% for p in range(1, machine_total_pages + 1) %}
+        {%  set current = machine_page or 1%}
+        {% set window = 10 %}
+        {% set start = [current - (window//2), 1] | max %}
+        {% set end = [start + window - 1, machine_total_pages] | min %}
+        {% set start = [end - window + 1, 1] | max %}
+        {% for p in range(start, end + 1) %}
         <li class="page-item {% if p == (machine_page or 1) %}active{% endif %}">
             <a class="page-link" href="/?stock_tab=machine&parts_page={{ parts_page or 1 }}&machine_page={{ p }}&limit={{ limit }}{% if search %}&search={{ search }}{% endif %}">{{ p }}</a>
         </li>

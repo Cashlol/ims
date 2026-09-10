@@ -4371,6 +4371,7 @@ async def get_part_items(
         return JSONResponse({"items": []}, status_code=status.HTTP_401_UNAUTHORIZED)
 
     part = db.query(models.SkuPart).filter(models.SkuPart.id == part_id).first()
+    print(part.name)
     if not part:
         return JSONResponse({"items": []})
 
@@ -4378,6 +4379,7 @@ async def get_part_items(
         items = crud.get_part_items_for_sku(db, sku_id=part.id, outgoing_flag=True, returning_flag=False)
     else:
         items = crud.get_part_items_for_sku(db, sku_id=part.id, outgoing_flag=False, returning_flag=False)
+
 
     return JSONResponse(
         {
