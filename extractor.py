@@ -1,9 +1,9 @@
 import pandas as pd
 from openpyxl import load_workbook
 
-input_file = "MSC_Audit.xlsx"
-output_file = "compiled.xlsx"
-target_columns = ['Part Number', 'Description', 'Serial Number', 'Rack', 'Tray', 'Type', 'Customer', 'Price USD']
+input_file = "BBMSC_Raw.xlsx"
+output_file = "compiled_copy.xlsx"
+target_columns = ['Part Number', 'Description', 'Serial Number', 'Rack', 'Tray', 'Type', 'Customer', 'Price USD', 'Price MYR', 'Date In']
 
 # Load workbook with openpyxl just to check sheet visibility
 wb = load_workbook(input_file, read_only=True)
