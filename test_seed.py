@@ -2,7 +2,7 @@ import pandas as pd
 import sqlite3
 
 # Read the Excel file
-df = pd.read_excel('compiled_copy.xlsx', sheet_name='Items')
+df = pd.read_excel('Cimb_Latest.xlsx', sheet_name='Items')
 
 # Connect to (or create) the SQLite database
 conn = sqlite3.connect('inventory.db')
