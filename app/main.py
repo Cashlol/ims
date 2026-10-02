@@ -957,6 +957,7 @@ async def export_rack_inventory_excel(
             }
             for row in items
         ]
+        print(rows)
         return _excel_stream_response(rows, "rack_inventory_tray.xlsx", "TrayInventory")
 
     if active_tab == "all":
@@ -1456,14 +1457,15 @@ async def settings_test_email(
 
 EXPORT_COLUMN_DEFS = {
     "part_no": ("Part No", lambda part, item: part.sku),
-    "part_description": ("Part Description", lambda part, item: part.name),
+    "part_name": ("Part Name", lambda part, item: part.name),
+    "part_description": ("Description", lambda part, item: part.description),
     "part_category": ("Entity", lambda part, item: part.part_category),
-    "criticality": ("Critical", lambda part, item: part.criticality),
+    # "criticality": ("Critical", lambda part, item: part.criticality),
     "vendor": ("Vendor", lambda part, item: item.vendor if item else ""),
     "serial_no": ("Serial No", lambda part, item: item.serial_no if item else ""),
     "unit_cost": ("Unit Cost", lambda part, item: item.unit_cost if item else ""),
     "price_usd": ("Price (USD)", lambda part, item: item.price_usd if item else ""),
-    "conversion_rate": ("Conversion Rate", lambda part, item: item.conversion_rate if item else ""),
+    # "conversion_rate": ("Conversion Rate", lambda part, item: item.conversion_rate if item else ""),
     "price_myr": ("Price (MYR)", lambda part, item: item.price_myr if item else ""),
     "lead_time_days": ("Lead Time (Days)", lambda part, item: item.lead_time_days if item else ""),
     "stock_in_date": (
