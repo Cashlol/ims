@@ -1458,7 +1458,8 @@ async def settings_test_email(
 EXPORT_COLUMN_DEFS = {
     "part_no": ("Part No", lambda part, item: part.sku),
     "part_name": ("Part Name", lambda part, item: part.name),
-    "part_description": ("Description", lambda part, item: part.description),
+    "item_description": ("Location", lambda part, item: item.description),
+    "item_remarks": ("Remarks", lambda part, item: item.remarks),
     "part_category": ("Entity", lambda part, item: part.part_category),
     # "criticality": ("Critical", lambda part, item: part.criticality),
     "vendor": ("Vendor", lambda part, item: item.vendor if item else ""),
